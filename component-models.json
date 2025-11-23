@@ -411,6 +411,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "visible",
         "label": "Show Component",
@@ -525,6 +536,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -767,6 +789,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -982,6 +1015,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -1228,6 +1272,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -1459,6 +1514,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -1678,6 +1744,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -1878,6 +1955,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -2176,6 +2264,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -2399,6 +2498,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -2653,6 +2763,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -2927,6 +3048,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -3178,6 +3310,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "visible",
         "label": "Show Component",
@@ -3294,6 +3437,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "visible",
         "label": "Show Component",
@@ -3408,6 +3562,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -3613,6 +3778,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -3824,6 +4000,17 @@
         "required": true
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "text",
         "name": "dataRef",
         "label": "Bind reference",
@@ -3833,6 +4020,13 @@
         "component": "boolean",
         "name": "visible",
         "label": "Show Component",
+        "valueType": "boolean",
+        "value": true
+      },
+      {
+        "component": "boolean",
+        "name": "enabled",
+        "label": "Enable Component",
         "valueType": "boolean",
         "value": true
       },
@@ -3920,6 +4114,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -4062,6 +4267,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -4200,6 +4416,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",
@@ -4409,6 +4636,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -4614,6 +4852,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -4807,6 +5056,17 @@
         "valueType": "string"
       },
       {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
+      },
+      {
         "component": "boolean",
         "name": "hideTitle",
         "label": "Hide title",
@@ -4951,6 +5211,17 @@
         "name": "jcr:title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "multiselect",
+        "name": "style",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Highlight",
+            "value": "highlight"
+          }
+        ]
       },
       {
         "component": "boolean",

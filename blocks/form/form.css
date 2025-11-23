@@ -802,3 +802,325 @@ main div.form-wrapper {
 main .form form select[multiple] {
     height: calc(42px + 50px);
 }
+
+/* Parcel Selection Card Styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    border-left: 4px solid #ccc;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
+    grid-column: span 12;
+}
+
+/* Different border colors for first and second cards */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"][data-index="0"] {
+    border-left-color: #d32f2f; /* Red for Parcel Post */
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"][data-index="1"] {
+    border-left-color: #f9a825; /* Gold/Yellow for Express Post */
+}
+
+/* Title and Select Button Container */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-panelcontainer1763908790789 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: center;
+    margin-bottom: 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    grid-column: span 12;
+    gap: 0;
+}
+
+/* Parcel Title Styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parceltitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: #9e9e9e;
+    margin: 0;
+    grid-column: span 9;
+    display: flex;
+    align-items: center;
+}
+
+/* Radio Button Select Styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select {
+    margin: 0;
+    padding: 0;
+    grid-column: span 3;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select legend {
+    display: none;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select .radio-wrapper {
+    margin: 0;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select .radio-wrapper input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select .radio-wrapper label {
+    display: inline-block;
+    padding: 10px 28px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 400;
+    color: #666;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+/* Selected state styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select .radio-wrapper input[type="radio"]:checked ~ label {
+    background: #9e9e9e;
+    color: white;
+    border-color: #9e9e9e;
+}
+
+/* Options Styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options {
+    margin: 20px 0;
+    grid-column: span 12;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options p {
+    margin: 0;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0 0;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options ul li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    color: #666;
+    font-size: 16px;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Included Section */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-options::before {
+    content: "Included:";
+    display: block;
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+/* Price Container */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-panelcontainer-6460772521763908949985 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 0;
+    grid-column: span 12;
+}
+
+/* Price Label */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-text1763908973643 {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    grid-column: span 9;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-text1763908973643 p {
+    margin: 0;
+}
+
+/* Price Value */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcelprice {
+    text-align: right;
+    margin: 0;
+    grid-column: span 3;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcelprice label {
+    display: none;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcelprice input {
+    border: none;
+    background: transparent;
+    text-align: right;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    padding: 0;
+    margin: 0;
+    height: auto;
+}
+
+/* Delete Button Styling */
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .item-remove {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 14px;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .item-remove:hover {
+    color: #d32f2f;
+    background: transparent;
+}
+
+main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .item-remove i::before {
+    content: "×";
+    font-size: 18px;
+    font-style: normal;
+}
+
+/* Responsive adjustments */
+@media (width <= 768px) {
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-panelcontainer1763908790789 {
+        grid-template-columns: 1fr;
+    }
+    
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parceltitle {
+        grid-column: span 1;
+        margin-bottom: 12px;
+    }
+    
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcel-select {
+        grid-column: span 1;
+        justify-content: flex-start;
+    }
+    
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-text1763908973643 {
+        grid-column: span 12;
+        margin-bottom: 8px;
+    }
+    
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcelprice {
+        grid-column: span 12;
+        text-align: left;
+    }
+    
+    main .form form .repeat-wrapper .panel-wrapper[data-repeatable="true"] .field-parcelprice input {
+        text-align: left;
+    }
+}
+
+main .form form .item-remove {
+    display: none !important;
+}
+
+/* Info Box Styling */
+main .form form .field-choose-parcel-service-info.highlight {
+    background: #e3f2fd;
+    border-left: 4px solid #1976d2;
+    padding: 20px 20px 20px 60px;
+    margin: 20px 0;
+    border-radius: 4px;
+    position: relative;
+    grid-column: span 12;
+}
+
+/* Info Icon */
+main .form form .field-choose-parcel-service-info.highlight::before {
+    content: "i";
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 2px solid #1976d2;
+    border-radius: 50%;
+    color: #1976d2;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-family: serif;
+}
+
+/* Info Box Paragraph */
+main .form form .field-choose-parcel-service-info.highlight p {
+    margin: 0;
+    color: #1565c0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Info Box Bold Text */
+main .form form .field-choose-parcel-service-info.highlight p b {
+    font-weight: 600;
+    color: #0d47a1;
+}
+
+/* Info Box List */
+main .form form .field-choose-parcel-service-info.highlight ul {
+    margin: 12px 0 0 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+main .form form .field-choose-parcel-service-info.highlight ul li {
+    color: #1565c0;
+    padding: 4px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments for info box */
+@media (width <= 768px) {
+    main .form form .field-choose-parcel-service-info.highlight {
+        padding: 16px 16px 16px 52px;
+    }
+    
+    main .form form .field-choose-parcel-service-info.highlight::before {
+        left: 16px;
+        top: 16px;
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+    }
+    
+    main .form form .field-choose-parcel-service-info.highlight p,
+    main .form form .field-choose-parcel-service-info.highlight ul li {
+        font-size: 14px;
+    }
+}

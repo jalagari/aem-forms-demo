@@ -2931,16 +2931,6 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
         inputPayload = payload;
     }
     else if (payload && (typeof payload === 'string' || (typeof payload === 'object' && Object.keys(payload).length > 0))) {
-        const headerNames = Object.keys(headers);
-        if (headerNames.length > 0) {
-            requestOptions.headers = {
-                ...headers,
-                ...(headerNames.indexOf('Content-Type') === -1 ? { 'Content-Type': 'application/json' } : {})
-            };
-        }
-        else {
-            requestOptions.headers = { 'Content-Type': 'application/json' };
-        }
         const contentType = requestOptions?.headers?.['Content-Type'] || 'application/json';
         if (typeof payload === 'object') {
             if (contentType === 'application/json') {
@@ -2955,6 +2945,18 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
         }
         if (contentType === 'text/plain') {
             inputPayload = String(payload);
+        }
+    }
+    if (headers && Object.keys(headers).length > 0) {
+        const headerNames = Object.keys(headers);
+        if (headerNames.length > 0) {
+            requestOptions.headers = {
+                ...headers,
+                ...(headerNames.indexOf('Content-Type') === -1 ? { 'Content-Type': 'application/json' } : {})
+            };
+        }
+        else {
+            requestOptions.headers = { 'Content-Type': 'application/json' };
         }
     }
     const dispatchErrorEvents = (response, errorType, enhancedPayload) => {

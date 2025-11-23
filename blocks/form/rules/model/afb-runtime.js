@@ -20,9 +20,9 @@
 
 /*
  *  Package: @aemforms/af-core
- *  Version: 0.22.145
+ *  Version: 0.22.157
  */
-import { propertyChange, ExecuteRule, Initialize, RemoveItem, Change, FormLoad, FieldChanged, ValidationComplete, Valid, Invalid, SubmitSuccess, CustomEvent, RequestSuccess, SubmitError, SubmitFailure, RequestFailure, Submit, Save, Reset, Focus, RemoveInstance, AddInstance, AddItem, Click } from './afb-events.js';
+import { propertyChange, ExecuteRule, Initialize, RemoveItem, Change, FormLoad, FieldChanged, ValidationComplete, Valid, Invalid, SubmitSuccess, CustomEvent, RequestSuccess, RequestFailure, SubmitError, Submit, Save, Reset, SubmitFailure, Focus, RemoveInstance, AddInstance, AddItem, Click } from './afb-events.js';
 import Formula from '../formula/index.js';
 import { format, parseDefaultDate, datetimeToNumber, parseDateSkeleton, numberToDatetime, formatDate, parseDate } from './afb-formatters.min.js';
 
@@ -49,7 +49,8 @@ const ConstraintType = Object.freeze({
     MAX_ITEMS_MISMATCH: 'maxItemsMismatch',
     EXPRESSION_MISMATCH: 'expressionMismatch',
     EXCLUSIVE_MAXIMUM_MISMATCH: 'exclusiveMaximumMismatch',
-    EXCLUSIVE_MINIMUM_MISMATCH: 'exclusiveMinimumMismatch'
+    EXCLUSIVE_MINIMUM_MISMATCH: 'exclusiveMinimumMismatch',
+    ENUM_MISMATCH: 'enumMismatch'
 });
 const constraintKeys = Object.freeze({
     pattern: ConstraintType.PATTERN_MISMATCH,
@@ -68,7 +69,8 @@ const constraintKeys = Object.freeze({
     maxItems: ConstraintType.MAX_ITEMS_MISMATCH,
     validationExpression: ConstraintType.EXPRESSION_MISMATCH,
     exclusiveMinimum: ConstraintType.EXCLUSIVE_MINIMUM_MISMATCH,
-    exclusiveMaximum: ConstraintType.EXCLUSIVE_MAXIMUM_MISMATCH
+    exclusiveMaximum: ConstraintType.EXCLUSIVE_MAXIMUM_MISMATCH,
+    enum: ConstraintType.ENUM_MISMATCH
 });
 const defaultConstraintTypeMessages = Object.freeze({
     [ConstraintType.PATTERN_MISMATCH]: 'Please match the format requested.',
@@ -87,7 +89,8 @@ const defaultConstraintTypeMessages = Object.freeze({
     [ConstraintType.MAX_ITEMS_MISMATCH]: 'Specify a number of items equal to or less than ${0}.',
     [ConstraintType.EXPRESSION_MISMATCH]: 'Please enter a valid value.',
     [ConstraintType.EXCLUSIVE_MINIMUM_MISMATCH]: 'Value must be greater than ${0}.',
-    [ConstraintType.EXCLUSIVE_MAXIMUM_MISMATCH]: 'Value must be less than ${0}.'
+    [ConstraintType.EXCLUSIVE_MAXIMUM_MISMATCH]: 'Value must be less than ${0}.',
+    [ConstraintType.ENUM_MISMATCH]: 'Please select a value from the allowed options.'
 });
 let customConstraintTypeMessages = {};
 const getConstraintTypeMessages = () => {
@@ -376,6 +379,22 @@ class DataValue {
     $bindToField(field) {
         if (this.$_fields.indexOf(field) === -1) {
             this.$_fields.push(field);
+            this._checkForTypeConflicts(field);
+        }
+    }
+    _checkForTypeConflicts(newField) {
+        if (this.$_fields.length <= 1) {
+            return;
+        }
+        const newFieldType = newField.type;
+        const conflictingFields = this.$_fields.filter(existingField => existingField &&
+            existingField !== newField &&
+            existingField.type !== newFieldType);
+        if (conflictingFields.length > 0) {
+            const conflictDetails = conflictingFields.map(field => `Field "${field.id}" (${field.type})`).join(', ');
+            console.error('Type conflict detected: Multiple fields with same dataRef have different types. ' +
+                `New field '${newField.id}' (${newFieldType}) conflicts with: ${conflictDetails}. ` +
+                `DataRef: ${this.$name}`);
         }
     }
     $convertToDataValue() {
@@ -1031,6 +1050,34 @@ const replaceTemplatePlaceholders = (str, values = []) => {
         return typeof replacement !== 'undefined' ? replacement : match;
     });
 };
+const sanitizeName = (name) => {
+    const nameRegex = /^[A-Za-z0-9_$][A-Za-z0-9_.[\]]*$/;
+    if (name.includes('.')) {
+        const parts = name.split('.');
+        const sanitizedParts = parts.map((part) => {
+            if (part.includes('[')) {
+                const bracketIndex = part.indexOf('[');
+                const namePart = part.substring(0, bracketIndex);
+                const bracketPart = part.substring(bracketIndex);
+                if (!nameRegex.test(namePart)) {
+                    return `"${namePart}"${bracketPart}`;
+                }
+                return part;
+            }
+            else {
+                if (!nameRegex.test(part)) {
+                    return `"${part}"`;
+                }
+                return part;
+            }
+        });
+        return sanitizedParts.join('.');
+    }
+    if (!nameRegex.test(name)) {
+        return `"${name}"`;
+    }
+    return name;
+};
 const dateRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
 const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -1404,6 +1451,9 @@ const addOnly = (includeOrExclude) => (...fieldTypes) => (target, propertyKey, d
     const set = descriptor.set;
     if (set != undefined) {
         descriptor.set = function (value) {
+            if (this === this._ruleNode) {
+                console.error(`Property '${propertyKey}' is being set through a proxy, which is not supported. Please use globals.functions.setProperty instead.`);
+            }
             if (fieldTypes.indexOf(this.fieldType) > -1 === includeOrExclude) {
                 set.call(this, value);
             }
@@ -1617,7 +1667,14 @@ class BaseNode {
         };
     }
     _addDependent(dependent, propertyName) {
-        if (this._dependents.find(({ node }) => node === dependent) === undefined) {
+        const existingDependency = this._dependents.find(({ node, propertyName: existingProp }) => {
+            let isExistingDependent = node === dependent;
+            if (isExistingDependent && propertyName && propertyName.startsWith('properties.')) {
+                isExistingDependent = existingProp === propertyName;
+            }
+            return isExistingDependent;
+        });
+        if (existingDependency === undefined) {
             const subscription = this.subscribe((change) => {
                 const changes = change.payload.changes;
                 const propsToLook = [...dynamicProps, 'items'];
@@ -1653,16 +1710,16 @@ class BaseNode {
         this.form.getEventQueue().runPendingQueue();
     }
     withDependencyTrackingControl(disableDependencyTracking, callback) {
-        const currentDependencyTracking = this.form.ruleEngine.getDependencyTracking();
+        const currentDependencyTracking = this.form?.ruleEngine.getDependencyTracking();
         if (disableDependencyTracking) {
-            this.form.ruleEngine.setDependencyTracking(false);
+            this.form?.ruleEngine.setDependencyTracking(false);
         }
         try {
             return callback();
         }
         finally {
             if (disableDependencyTracking) {
-                this.form.ruleEngine.setDependencyTracking(currentDependencyTracking);
+                this.form?.ruleEngine.setDependencyTracking(currentDependencyTracking);
             }
         }
     }
@@ -1864,7 +1921,7 @@ class BaseNode {
         else {
             qn = `${parent.qualifiedName}.${this.name}`;
         }
-        if (!this._isAncestorRepeatable()) {
+        if (!this.repeatable && !this._isAncestorRepeatable()) {
             this[qualifiedName] = qn;
         }
         return qn;
@@ -1917,7 +1974,8 @@ class Scriptable extends BaseNode {
                 try {
                     let updatedRule = eString;
                     if (this.fragment !== '$form') {
-                        updatedRule = eString.replaceAll('$form', this.fragment);
+                        const sanitizedFragment = sanitizeName(this.fragment);
+                        updatedRule = eString.replaceAll('$form', sanitizedFragment);
                     }
                     this._rules[eName] = this.ruleEngine.compileRule(updatedRule, this.lang);
                 }
@@ -1942,7 +2000,8 @@ class Scriptable extends BaseNode {
                     try {
                         let updatedExpr = x;
                         if (this.fragment !== '$form') {
-                            updatedExpr = x.replaceAll('$form', this.fragment);
+                            const sanitizedFragment = sanitizeName(this.fragment);
+                            updatedExpr = x.replaceAll('$form', sanitizedFragment);
                         }
                         return this.ruleEngine.compileRule(updatedExpr, this.lang);
                     }
@@ -2480,18 +2539,11 @@ class Container extends Scriptable {
                 return;
             }
             this._data = dataGroup;
-            const result = this.syncDataAndFormModel(dataGroup);
+            this.syncDataAndFormModel(dataGroup);
             const newLength = this.items.length;
-            result.added.forEach((item) => {
-                this.notifyDependents(propertyChange('items', item.getState(), null));
-                item.dispatch(new Initialize());
-            });
             for (let i = 0; i < newLength; i += 1) {
                 this._children[i].dispatch(new ExecuteRule());
             }
-            result.removed.forEach((item) => {
-                this.notifyDependents(propertyChange('items', null, item.getState()));
-            });
         }
         else if (typeof this._data === 'undefined') {
             console.warn(`Data node is null, hence importData did not work for panel "${this.name}". Check if parent has a dataRef set to null.`);
@@ -2521,6 +2573,13 @@ class Container extends Scriptable {
                     result.removed.push(this._children.pop());
                 }
             }
+            result.added.forEach((item) => {
+                this.notifyDependents(propertyChange('items', item.getState(), null));
+                item.dispatch(new Initialize());
+            });
+            result.removed.forEach((item) => {
+                this.notifyDependents(propertyChange('items', null, item.getState()));
+            });
         }
         this._children.forEach(x => {
             let dataModel = x.bindToDataModel(contextualDataModel);
@@ -2542,7 +2601,7 @@ class Container extends Scriptable {
                 activeChild.activeChild = null;
                 activeChild = temp;
             }
-            const change = propertyChange('activeChild', c, this._activeChild);
+            const change = propertyChange('activeChild', c?.getState(), this._activeChild?.getState());
             this._activeChild = c;
             if (this.parent && c !== null) {
                 this.parent.activeChild = this;
@@ -2793,6 +2852,9 @@ const request$1 = (url, data = null, options = {}) => {
             body,
             headers
         };
+    }).catch((error) => {
+        console.error(`Network error while fetching from ${url}:`, error);
+        throw error;
     });
 };
 const defaultRequestOptions = {
@@ -2843,7 +2905,7 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
         method: httpVerb
     };
     let inputPayload;
-    let encryptOutput = {};
+    let encryptOutput = {}, cryptoMetadata = null;
     try {
         if (payload instanceof Promise) {
             payload = await payload;
@@ -2857,6 +2919,7 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
         encryptOutput = { ...payload };
         headers = { ...payload.headers };
         payload = payload.body;
+        cryptoMetadata = payload.cryptoMetadata;
         inputPayload = payload;
     }
     if (payload && payload instanceof FileObject && payload.data instanceof File) {
@@ -2894,40 +2957,9 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
             inputPayload = String(payload);
         }
     }
-    const response = await request$1(endpoint, inputPayload, requestOptions);
-    response.originalRequest = {
-        url: endpoint,
-        method: httpVerb,
-        ...encryptOutput
-    };
-    const targetField = context.$field || null;
-    const targetEvent = context.$event || null;
-    response.submitter = targetField;
-    const enhancedPayload = {
-        request: response.originalRequest,
-        response,
-        targetField,
-        targetEvent
-    };
-    if (response?.status >= 200 && response?.status <= 299) {
-        const eName = getCustomEventName(success);
-        if (success === 'submitSuccess') {
-            context.form.dispatch(new SubmitSuccess(response, true));
-        }
-        else {
-            if (context.field) {
-                context.field.dispatch(new CustomEvent(eName, response, true));
-            }
-            else {
-                context.form.dispatch(new CustomEvent(eName, response, true));
-            }
-        }
-        context.form.dispatch(new RequestSuccess(enhancedPayload, false));
-    }
-    else {
-        context.form.logger.error('Error invoking a rest API');
-        const eName = getCustomEventName(error);
-        if (error === 'submitError') {
+    const dispatchErrorEvents = (response, errorType, enhancedPayload) => {
+        const eName = getCustomEventName(errorType);
+        if (errorType === 'submitError') {
             context.form.dispatch(new SubmitError(response, true));
             context.form.dispatch(new SubmitFailure(response, true));
         }
@@ -2940,8 +2972,62 @@ const request = async (context, uri, httpVerb, payload, success, error, headers)
             }
         }
         context.form.dispatch(new RequestFailure(enhancedPayload, false));
+    };
+    const targetField = context.$field || null;
+    const baseEnhancedPayload = {
+        request: { url: endpoint, method: httpVerb, ...encryptOutput },
+        targetField: targetField,
+        targetEvent: context.$event || null
+    };
+    try {
+        const response = await request$1(endpoint, inputPayload, requestOptions);
+        response.originalRequest = {
+            url: endpoint,
+            method: httpVerb,
+            ...(cryptoMetadata && { cryptoMetadata }),
+            ...encryptOutput
+        };
+        response.submitter = targetField;
+        const enhancedPayload = {
+            ...baseEnhancedPayload,
+            response,
+            request: response.originalRequest
+        };
+        if (response?.status >= 200 && response?.status <= 299) {
+            const eName = getCustomEventName(success);
+            if (success === 'submitSuccess') {
+                context.form.dispatch(new SubmitSuccess(response, true));
+            }
+            else {
+                if (context.field) {
+                    context.field.dispatch(new CustomEvent(eName, response, true));
+                }
+                else {
+                    context.form.dispatch(new CustomEvent(eName, response, true));
+                }
+            }
+            context.form.dispatch(new RequestSuccess(enhancedPayload, false));
+        }
+        else {
+            context.form.logger.error('Error invoking a rest API');
+            dispatchErrorEvents(response, error, enhancedPayload);
+        }
+        return response;
     }
-    return response;
+    catch (networkError) {
+        context.form.logger.error('Network error while invoking a rest API:', networkError);
+        const networkErrorResponse = {
+            body: null,
+            headers: {},
+            error: networkError instanceof Error ? networkError.message : String(networkError)
+        };
+        const enhancedPayload = {
+            ...baseEnhancedPayload,
+            response: networkErrorResponse
+        };
+        dispatchErrorEvents(networkErrorResponse, error, enhancedPayload);
+        context.form.dispatch(new RequestFailure(enhancedPayload, false));
+    }
 };
 const urlEncoded = (data) => {
     const formData = new URLSearchParams();
@@ -3203,13 +3289,17 @@ class FunctionRuntimeImpl {
             getData: {
                 _func: (args, data, interpreter) => {
                     interpreter.globals.form.logger.warn('The `getData` function is depricated. Use `exportData` instead.');
-                    return interpreter.globals.form.exportData();
+                    return interpreter.globals.form.withDependencyTrackingControl(true, () => {
+                        return interpreter.globals.form.exportData();
+                    });
                 },
                 _signature: []
             },
             exportData: {
                 _func: (args, data, interpreter) => {
-                    return interpreter.globals.form.exportData();
+                    return interpreter.globals.form.withDependencyTrackingControl(true, () => {
+                        return interpreter.globals.form.exportData();
+                    });
                 },
                 _signature: []
             },
@@ -3397,10 +3487,11 @@ class FunctionRuntimeImpl {
                             throw error;
                         }
                         let finalHeaders = {};
-                        let finalBody = {};
+                        let finalBody = {}, finalCryptoMetadata = null;
                         if (args.length === 5) {
                             finalBody = payload.body || {};
                             finalHeaders = payload.headers || {};
+                            finalCryptoMetadata = payload.cryptoMetadata;
                         }
                         else {
                             finalBody = payload || {};
@@ -3420,7 +3511,7 @@ class FunctionRuntimeImpl {
                                 };
                             }
                         }
-                        const finalPayload = { 'body': finalBody, 'headers': finalHeaders };
+                        const finalPayload = { 'body': finalBody, 'headers': finalHeaders, ...(finalCryptoMetadata && { cryptoMetadata: finalCryptoMetadata }) };
                         try {
                             const response = await request(interpreter.globals, uri, httpVerb, finalPayload, success, errorFn, finalHeaders);
                             return response;
@@ -3555,12 +3646,26 @@ class FunctionRuntimeImpl {
                         interpreter.globals.form.logger.error('Argument is missing in getQueryParameter. A parameter is expected');
                         return '';
                     }
-                    if (interpreter.globals.form?.properties?.queryParams?.[param]) {
-                        return interpreter.globals.form.properties.queryParams[param];
+                    const queryParams = interpreter.globals.form?.properties?.queryParams;
+                    if (queryParams) {
+                        if (queryParams[param] !== undefined) {
+                            return queryParams[param];
+                        }
+                        const lowerParam = param.toLowerCase();
+                        for (const [key, value] of Object.entries(queryParams)) {
+                            if (key.toLowerCase() === lowerParam) {
+                                return value;
+                            }
+                        }
                     }
                     try {
                         const urlParams = new URLSearchParams(window?.location?.search || '');
-                        return urlParams.get(param);
+                        const urlValue = urlParams.get(param) ||
+                            Array.from(urlParams.entries())
+                                .find(([key]) => key.toLowerCase() === param.toLowerCase())?.[1];
+                        if (urlValue !== null && urlValue !== undefined) {
+                            return urlValue;
+                        }
                     }
                     catch (e) {
                         interpreter.globals.form.logger.warn('Error reading URL parameters:', e);
@@ -3638,6 +3743,57 @@ class FunctionRuntimeImpl {
                     const now = new Date(Date.now());
                     const _today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                     return _today / MS_IN_DAY;
+                },
+                _signature: []
+            },
+            formatInput: {
+                _func: (args) => {
+                    const input = args[0];
+                    const format = args[1];
+                    if (!input || !format) {
+                        return input;
+                    }
+                    const inputStr = String(input).replace(/\D/g, '');
+                    switch (String(format).toLowerCase()) {
+                        case 'phonenumber': {
+                            if (inputStr.length >= 10) {
+                                const areaCode = inputStr.substring(0, 3);
+                                const firstThree = inputStr.substring(3, 6);
+                                const lastFour = inputStr.substring(6, 10);
+                                return `(${areaCode}) ${firstThree}-${lastFour}`;
+                            }
+                            else if (inputStr.length >= 7) {
+                                const firstThree = inputStr.substring(0, 3);
+                                const lastFour = inputStr.substring(3, 7);
+                                return `(${firstThree}) ${lastFour}`;
+                            }
+                            return inputStr;
+                        }
+                        case 'socialsecuritynumber': {
+                            if (inputStr.length >= 9) {
+                                const firstThree = inputStr.substring(0, 3);
+                                const middleTwo = inputStr.substring(3, 5);
+                                const lastFour = inputStr.substring(5, 9);
+                                return `${firstThree}-${middleTwo}-${lastFour}`;
+                            }
+                            return inputStr;
+                        }
+                        case 'email-alphanumeric': {
+                            const alphanumeric = String(input).replace(/[^a-zA-Z0-9]/g, '');
+                            if (alphanumeric.length > 0) {
+                                return `${alphanumeric}@example.com`;
+                            }
+                            return input;
+                        }
+                        case 'zipcode': {
+                            if (inputStr.length >= 5) {
+                                return inputStr.substring(0, 5);
+                            }
+                            return inputStr;
+                        }
+                        default:
+                            return input;
+                    }
                 },
                 _signature: []
             }
@@ -4702,6 +4858,24 @@ class Field extends Scriptable {
         this._setProperty('errorMessage', e);
         this._setProperty('validationMessage', e);
     }
+    set constraintMessage(constraint) {
+        if (Array.isArray(constraint)) {
+            const updatedConstraintMessages = {
+                ...this._jsonModel.constraintMessages
+            };
+            constraint.forEach(({ type, message }) => {
+                updatedConstraintMessages[type] = message;
+            });
+            this._setProperty('constraintMessages', updatedConstraintMessages);
+        }
+        else {
+            const updatedConstraintMessages = {
+                ...this._jsonModel.constraintMessages,
+                [constraint.type]: constraint.message
+            };
+            this._setProperty('constraintMessages', updatedConstraintMessages);
+        }
+    }
     _getConstraintObject() {
         return Constraints;
     }
@@ -4712,10 +4886,10 @@ class Field extends Scriptable {
         if (this._jsonModel.enforceEnum === true && value != null) {
             const fn = constraints.enum;
             if (value instanceof Array && this.isArrayType()) {
-                return value.every(x => fn(this.enum || [], x).valid);
+                return value.every(x => fn(this._jsonModel.enum || [], x).valid);
             }
             else {
-                return fn(this.enum || [], value).valid;
+                return fn(this._jsonModel.enum || [], value).valid;
             }
         }
         return true;
@@ -5544,6 +5718,8 @@ const fetchForm = (url, headers = {}) => {
                 }
                 resolve(jsonString(formObj));
             }
+        }).catch((error) => {
+            reject(`Network error: ${error.message || error}`);
         });
     });
 };

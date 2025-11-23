@@ -291,6 +291,9 @@ export async function generateFormRendition(panel, container, formId, getItems =
     if (field.appliedCssClassNames) {
       element.className += ` ${field.appliedCssClassNames}`;
     }
+    if (field.properties?.style) {
+      element.className += ` ${field.properties?.style}`;
+    }
     colSpanDecorator(field, element);
     if (field?.fieldType === 'panel') {
       await generateFormRendition(field, element, formId, getItems);

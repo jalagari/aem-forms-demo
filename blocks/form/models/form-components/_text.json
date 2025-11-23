@@ -30,6 +30,17 @@
           "required": true
         },
         {
+          "component": "multiselect",
+          "name": "style",
+          "label": "Style",
+          "options": [
+            {
+              "name": "Highlight",
+              "value": "highlight"
+            }
+          ]
+        },
+        {
           "component": "text",
           "name": "dataRef",
           "label": "Bind reference",
@@ -39,6 +50,13 @@
           "component": "boolean",
           "name": "visible",
           "label": "Show Component",
+          "valueType": "boolean",
+          "value": true
+        },
+        {
+          "component": "boolean",
+          "name": "enabled",
+          "label": "Enable Component",
           "valueType": "boolean",
           "value": true
         },

@@ -42,5 +42,14 @@ function days(endDate, startDate) {
   return Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 }
 
+/**
+ * Update the selection of the element.
+ * @param {Element} element
+ * @param {scope} globals
+ */
+function updateSelection(element, globals) {
+
+}
+
 // eslint-disable-next-line import/prefer-default-export
-export { getFullName, days, submitFormArrayToString };
+export { getFullName, days, submitFormArrayToString, updateSelection };

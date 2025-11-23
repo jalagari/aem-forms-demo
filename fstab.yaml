@@ -1,2 +1,5 @@
 mountpoints:
-  /: https://adobe.sharepoint.com/sites/aem-forms-lab/Shared%20Documents/website
+  /:
+    url: "https://author-p133911-e1313536.adobeaemcloud.com/bin/franklin.delivery/jalagari/aem-forms-demo/main"
+    type: "markup"
+    suffix: ".html"

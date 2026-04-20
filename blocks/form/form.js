@@ -537,7 +537,7 @@ export default async function decorate(block) {
       // Check if we're in an iframe and use parent window path if available
       const iframePath = window.frameElement ? window.parent.location.pathname
         : window.location.pathname;
-      formDef.action = SUBMISSION_SERVICE + btoa(pathname || iframePath);
+      formDef.action = SUBMISSION_SERVICE + (formDef.id ? formDef.id : (btoa(pathname || iframePath)));
     } else {
       formDef.action = getSubmitBaseUrl() + (formDef.action || '');
     }
